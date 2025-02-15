@@ -1,0 +1,68 @@
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+#question {
+  height: 150px; /* 高さを150pxに固定 */
+  overflow-y: auto; /* 内容がオーバーフローした場合にスクロール */
+  margin-bottom: 15px;
+}
+
+#quiz-container {
+  margin: 20px auto;
+  width: 90%;
+  max-width: 400px;
+  display: none;
+}
+#question-number {
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+#options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+.option {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #333;
+  background-color: #f9f9f9;
+  cursor: pointer;
+  height: 100px;
+}
+.option:hover {
+  background-color: #ddd;
+}
+.correct {
+  background-color: #4caf50;
+  color: white;
+}
+#result {
+  margin-top: 15px;
+  font-weight: bold;
+  font-size: 18px;
+}
+#next,
+#pause {
+  margin-top: 10px;
+  padding: 10px;
+  font-size: 16px;
+  width: 100%; /* 幅を90%に設定 */
+  max-width: 400px; /* 最大幅を400pxに設定 */
+  display: block; /* 横幅の設定を有効にするためブロック要素に変更 */
+  margin-left: auto; /* 横方向の中央寄せ */
+  margin-right: auto; /* 横方向の中央寄せ */
+  height: 100px;
+}
+
+#start,
+#resume {
+  margin-top: 10px;
+  padding: 10px;
+  font-size: 16px;
+}
+#menu {
+  margin-top: 20px;
+}
