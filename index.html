@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>4択クイズ</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+      }
+      #quiz-container {
+        margin: 20px auto;
+        width: 90%;
+        max-width: 400px;
+      }
+      #question-number {
+        font-size: 16px;
+        margin-bottom: 5px;
+      }
+      #options {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 10px;
+      }
+      .option {
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #333;
+        background-color: #f9f9f9;
+        cursor: pointer;
+      }
+      .option:hover {
+        background-color: #ddd;
+      }
+      .correct {
+        background-color: #4caf50;
+        color: white;
+      } /* 正解の色 */
+      #result {
+        margin-top: 15px;
+        font-weight: bold;
+        font-size: 18px;
+      }
+      #next {
+        margin-top: 10px;
+        padding: 10px;
+        font-size: 16px;
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="quiz-container">
+      <p id="question-number"></p>
+      <!-- 何問目かを表示 -->
+      <h2 id="question">問題文</h2>
+      <div id="options"></div>
+      <p id="result"></p>
+      <button id="next">次の問題へ</button>
+    </div>
+
+    <script>
+      let questions = [];
+      let currentQuestionIndex = 0;
+      let correctCount = 0; // 正解数カウント
+
+      async function loadCSV() {
+        const response = await fetch("questions.csv");
+        const text = await response.text();
+        const lines = text.trim().split("\n");
+
+        // 1行目（ヘッダー）をスキップ
+        questions = lines.slice(1).map((line) => {
+          const [question, a, b, c, d, answer] = line.split(",");
+          return { question, options: [a, b, c, d], answer };
+        });
+
+        showQuestion();
+      }
+
+      function showQuestion() {
+        const q = questions[currentQuestionIndex];
+        document.getElementById("question-number").textContent = `問題 ${
+          currentQuestionIndex + 1
+        } / ${questions.length}`;
+        document.getElementById("question").textContent = q.question;
+        document.getElementById("result").textContent = "";
+        document.getElementById("options").innerHTML = "";
+        document.getElementById("next").style.display = "none";
+
+        const labels = ["A", "B", "C", "D"];
+        q.options.forEach((option, index) => {
+          const btn = document.createElement("button");
+          btn.textContent = `${labels[index]}: ${option}`;
+          btn.className = "option";
+          btn.dataset.answer = labels[index]; // A, B, C, D をデータ属性として保存
+          btn.onclick = () => checkAnswer(labels[index]); // クリック時に判定
+          document.getElementById("options").appendChild(btn);
+        });
+      }
+
+      function checkAnswer(selected) {
+        const q = questions[currentQuestionIndex];
+        const correctAnswer = q.answer;
+        const buttons = document.querySelectorAll(".option");
+
+        buttons.forEach((btn) => {
+          btn.onclick = null; // 選択後はボタン無効化
+          if (btn.dataset.answer === correctAnswer) {
+            btn.classList.add("correct"); // 正解を緑色に
+          }
+        });
+
+        if (selected === correctAnswer) {
+          document.getElementById("result").textContent = "正解です 🎉";
+          correctCount++; // 正解数をカウント
+        } else {
+          document.getElementById(
+            "result"
+          ).textContent = `不正解です ❌ 正解は ${correctAnswer} です`;
+        }
+        document.getElementById("next").style.display = "block";
+      }
+
+      document.getElementById("next").addEventListener("click", () => {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < questions.length) {
+          showQuestion();
+        } else {
+          document.getElementById("quiz-container").innerHTML = `
+                    <h2>テスト終了</h2>
+                    <p>結果: ${questions.length} 問中 ${correctCount} 問正解</p>
+                `;
+        }
+      });
+
+      loadCSV();
+    </script>
+  </body>
+</html>
