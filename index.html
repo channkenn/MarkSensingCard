@@ -103,17 +103,17 @@
 
       function checkAnswer(selected) {
         const q = questions[currentQuestionIndex];
-        const correctAnswer = q.answer;
+        const correctAnswer = q.answer.trim(); // 余分な空白や改行を削除
         const buttons = document.querySelectorAll(".option");
 
         buttons.forEach((btn) => {
           btn.onclick = null; // 選択後はボタン無効化
-          if (btn.dataset.answer === correctAnswer) {
+          if (btn.dataset.answer.trim() === correctAnswer) {
             btn.classList.add("correct"); // 正解を緑色に
           }
         });
 
-        if (selected === correctAnswer) {
+        if (selected.trim() === correctAnswer) {
           document.getElementById("result").textContent = "正解です 🎉";
           correctCount++; // 正解数をカウント
         } else {
