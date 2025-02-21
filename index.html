@@ -10,12 +10,16 @@
     <!-- メニュー画面 -->
     <div id="menu">
       <h1>4択クイズ</h1>
+      <label for="csv-selector">クイズを選択:</label>
+      <select id="csv-selector">
+        <!-- JavaScriptで選択肢を動的に追加 -->
+      </select>
       <button id="start">はじめから</button>
       <button id="resume">復帰</button>
     </div>
 
     <!-- クイズ画面 -->
-    <div id="quiz-container">
+    <div id="quiz-container" style="display: none">
       <p id="question-number"></p>
       <h2 id="question">問題文</h2>
       <div id="options"></div>

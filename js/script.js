@@ -1,21 +1,21 @@
 let questions = [];
 let currentQuestionIndex = 0;
 let correctCount = 0;
+let selectedCSV = ""; // 選択されたCSVファイル名
 
-async function loadCSV() {
-  const response = await fetch("csv/questions.csv"); // パスを変更
+async function loadCSV(file) {
+  const response = await fetch(`csv/${file}`);
   const text = await response.text();
   const lines = text.trim().split("\n");
 
-  // 1行目（ヘッダー）をスキップ
   questions = lines.slice(1).map((line) => {
     const [question, a, b, c, d, answer] = line
       .split(",")
-      .map((item) => item.trim()); // 空白を削除
+      .map((item) => item.trim());
     return { question, options: [a, b, c, d], answer };
   });
 
-  console.log(questions); // CSVデータの確認用
+  console.log(questions);
   showQuestion();
 }
 
@@ -23,12 +23,12 @@ function startQuiz(resetProgress = true) {
   if (resetProgress) {
     currentQuestionIndex = 0;
     correctCount = 0;
-    localStorage.removeItem("quizProgress"); // 進捗リセット
+    localStorage.removeItem("quizProgress");
   }
 
   document.getElementById("menu").style.display = "none";
   document.getElementById("quiz-container").style.display = "block";
-  showQuestion();
+  loadCSV(selectedCSV); // 選択したCSVをロード
 }
 
 function showQuestion() {
@@ -40,10 +40,9 @@ function showQuestion() {
   document.getElementById("result").textContent = "";
   document.getElementById("options").innerHTML = "";
 
-  // 「次へ」ボタンは表示しつつ、無効化
   const nextBtn = document.getElementById("next");
   nextBtn.style.display = "block";
-  nextBtn.disabled = true; // 押せない状態
+  nextBtn.disabled = true;
 
   const labels = ["A", "B", "C", "D"];
   q.options.forEach((option, index) => {
@@ -51,7 +50,7 @@ function showQuestion() {
     btn.textContent = `${labels[index]}: ${option}`;
     btn.className = "option";
     btn.dataset.answer = labels[index];
-    btn.onclick = () => checkAnswer(labels[index], nextBtn); // 「次へ」ボタンを渡す
+    btn.onclick = () => checkAnswer(labels[index], nextBtn);
     document.getElementById("options").appendChild(btn);
   });
 }
@@ -62,9 +61,9 @@ function checkAnswer(selected, nextBtn) {
   const buttons = document.querySelectorAll(".option");
 
   buttons.forEach((btn) => {
-    btn.onclick = null; // 選択後はボタン無効化
+    btn.onclick = null;
     if (btn.dataset.answer === correctAnswer) {
-      btn.classList.add("correct"); // 正解を緑色に
+      btn.classList.add("correct");
     }
   });
 
@@ -77,7 +76,6 @@ function checkAnswer(selected, nextBtn) {
     ).textContent = `不正解です ❌ 正解は ${correctAnswer} です`;
   }
 
-  // 「次へ」ボタンを有効化
   nextBtn.disabled = false;
 }
 
@@ -86,43 +84,35 @@ document.getElementById("next").addEventListener("click", () => {
   if (currentQuestionIndex < questions.length) {
     showQuestion();
   } else {
-    document.getElementById("quiz-container").innerHTML = `
-      <h2>テスト終了</h2>
-      <p>結果: ${questions.length} 問中 ${correctCount} 問正解</p>
-    `;
+    document.getElementById(
+      "quiz-container"
+    ).innerHTML = `<h2>テスト終了</h2><p>結果: ${questions.length} 問中 ${correctCount} 問正解</p>`;
   }
 });
 
-// はじめからボタン
 document.getElementById("start").addEventListener("click", () => {
+  selectedCSV = document.getElementById("csv-selector").value;
+  if (!selectedCSV) {
+    alert("CSVファイルを選択してください。");
+    return;
+  }
   startQuiz(true);
 });
 
-// 復帰ボタン
-document.getElementById("resume").addEventListener("click", () => {
-  const savedProgress = localStorage.getItem("quizProgress");
-  if (savedProgress) {
-    const progress = JSON.parse(savedProgress);
-    currentQuestionIndex = progress.currentQuestionIndex;
-    correctCount = progress.correctCount;
-    startQuiz(false);
-  } else {
-    alert("保存された進捗がありません。");
-  }
-});
-
-// 中断ボタン
-document.getElementById("pause").addEventListener("click", () => {
-  saveProgress();
-  document.getElementById("quiz-container").style.display = "none";
-  document.getElementById("menu").style.display = "block";
-});
-
-function saveProgress() {
-  localStorage.setItem(
-    "quizProgress",
-    JSON.stringify({ currentQuestionIndex, correctCount })
-  );
+function populateCSVSelector() {
+  const selector = document.getElementById("csv-selector");
+  const csvFiles = [
+    "questions1.csv",
+    "questions2.csv",
+    "questions3.csv",
+    "questions4.csv",
+  ]; // 追加可能
+  csvFiles.forEach((file) => {
+    const option = document.createElement("option");
+    option.value = file;
+    option.textContent = file;
+    selector.appendChild(option);
+  });
 }
 
-loadCSV();
+document.addEventListener("DOMContentLoaded", populateCSVSelector);
