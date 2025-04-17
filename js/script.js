@@ -15,8 +15,7 @@ async function loadCSV(file) {
     return { question, options: [a, b, c, d], answer };
   });
 
-  console.log(questions);
-  showQuestion();
+  showQuestion(); // currentQuestionIndex に従って表示
 }
 
 function startQuiz(resetProgress = true) {
@@ -107,13 +106,59 @@ function populateCSVSelector() {
     //"questions3.csv",
     //"questions4.csv",
     "zaitaku_section2.csv",
-  ]; // 追加可能
+  ];
+
   csvFiles.forEach((file) => {
     const option = document.createElement("option");
     option.value = file;
     option.textContent = file;
     selector.appendChild(option);
   });
+
+  // 保存された選択状態があれば復元
+  const savedProgress = localStorage.getItem("quizProgress");
+  if (savedProgress) {
+    const { selectedCSV: savedCSV } = JSON.parse(savedProgress);
+    selector.value = savedCSV;
+  }
 }
 
 document.addEventListener("DOMContentLoaded", populateCSVSelector);
+
+document.getElementById("pause").addEventListener("click", () => {
+  const progress = {
+    selectedCSV,
+    currentQuestionIndex,
+    correctCount,
+  };
+  localStorage.setItem("quizProgress", JSON.stringify(progress));
+
+  alert("進捗を保存しました。トップページに戻ります。");
+
+  // クイズ画面を非表示にしてメニュー画面を表示
+  document.getElementById("quiz-container").style.display = "none";
+  document.getElementById("menu").style.display = "block";
+});
+
+document.getElementById("resume").addEventListener("click", () => {
+  const savedProgress = localStorage.getItem("quizProgress");
+  if (!savedProgress) {
+    alert("再開できる進捗データがありません。");
+    return;
+  }
+
+  const {
+    selectedCSV: savedCSV,
+    currentQuestionIndex: savedIndex,
+    correctCount: savedCorrect,
+  } = JSON.parse(savedProgress);
+
+  selectedCSV = savedCSV;
+  currentQuestionIndex = savedIndex;
+  correctCount = savedCorrect;
+
+  document.getElementById("menu").style.display = "none";
+  document.getElementById("quiz-container").style.display = "block";
+
+  loadCSV(selectedCSV); // → 読み込んでから showQuestion() を呼ぶ
+});
