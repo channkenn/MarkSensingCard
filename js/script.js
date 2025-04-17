@@ -102,10 +102,11 @@ document.getElementById("start").addEventListener("click", () => {
 function populateCSVSelector() {
   const selector = document.getElementById("csv-selector");
   const csvFiles = [
-    "questions1.csv",
-    "questions2.csv",
-    "questions3.csv",
-    "questions4.csv",
+    //"questions1.csv",
+    //"questions2.csv",
+    //"questions3.csv",
+    //"questions4.csv",
+    "zaitaku_section2.csv",
   ]; // 追加可能
   csvFiles.forEach((file) => {
     const option = document.createElement("option");
